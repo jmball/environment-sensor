@@ -35,18 +35,19 @@ pms.setup()
 # configure the bme680 temp/humidity/pressure sensor
 bme = bme680.BME680(bme680.I2C_ADDR_PRIMARY)
 
-sensor.set_humidity_oversample(bme680.OS_2X)
-sensor.set_pressure_oversample(bme680.OS_4X)
-sensor.set_temperature_oversample(bme680.OS_8X)
-sensor.set_filter(bme680.FILTER_SIZE_3)
-sensor.set_gas_status(bme680.ENABLE_GAS_MEAS)
-sensor.set_gas_heater_temperature(320)
-sensor.set_gas_heater_duration(150)
-sensor.set_gas_heater_profile(0)
+bme.set_humidity_oversample(bme680.OS_2X)
+bme.set_pressure_oversample(bme680.OS_4X)
+bme.set_temperature_oversample(bme680.OS_8X)
+bme.set_temp_offset(-4) # this is a guess at what the offset should be
+bme.set_filter(bme680.FILTER_SIZE_3)
+bme.set_gas_status(bme680.ENABLE_GAS_MEAS)
+bme.set_gas_heater_temperature(320)
+bme.set_gas_heater_duration(150)
+bme.select_gas_heater_profile(0)
 
 # write header if file doesn't already exist
 if SAVE_FILE.exists() is False:
-    with open(SAVE_FILE, w, newline="\n") as f:
+    with open(str(SAVE_FILE), "w+", newline="\n") as f:
         writer = csv.writer(f, delimiter="\t")
         writer.writerow(HEADER)
 
@@ -58,13 +59,13 @@ try:
         data.append(int(time.time()))
 
         # read bme680 sensor data
-        if sensor.get_sensor_data():
-            data.append(sensor.data.temperature)
-            data.append(sensor.data.pressure)
-            data.append(sensor.data.humidity)
+        if bme.get_sensor_data():
+            data.append(bme.data.temperature)
+            data.append(bme.data.pressure)
+            data.append(bme.data.humidity)
 
-            if sensor.data.heat_stable:
-                data.append(sensor.data.gas_resistance)
+            if bme.data.heat_stable:
+                data.append(bme.data.gas_resistance)
             else:
                 data.append(0)
         else:
@@ -77,12 +78,14 @@ try:
         data.append(pms_data.pm_per_1l_air(1.0))
         data.append(pms_data.pm_per_1l_air(2.5))
         data.append(pms_data.pm_per_1l_air(5))
-        data.append(pms_data.pm_per.1l_air(10))
+        data.append(pms_data.pm_per_1l_air(10))
 
-        # save data
-        with open(SAVE_FILE, "w", newline="\n") as f:
+        # save append data
+        with open(str(SAVE_FILE), "a", newline="\n") as f:
             writer = csv.writer(f, delimiter="\t")
             writer.writerow(data)
+
+        print(data)
 
         time.sleep(10)
 
