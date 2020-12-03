@@ -85,9 +85,9 @@ try:
             writer = csv.writer(f, delimiter="\t")
             writer.writerow(data)
 
-        print(data)
+        # print(data)
 
-        time.sleep(10)
+        time.sleep(2)
 
 except KeyboardInterrupt:
     pass
