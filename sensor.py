@@ -87,7 +87,7 @@ try:
 
         # print(data)
 
-        time.sleep(2)
+        time.sleep(15)
 
 except KeyboardInterrupt:
     pass
